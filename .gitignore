@@ -1,0 +1,12 @@
+/BACK-END/MicroServices/FlightSearcherMicroService/MainBusiness/obj
+/BACK-END/MicroServices/FlightSearcherMicroService/MainBusiness/bin
+/BACK-END/MicroServices/FlightSearcherMicroService/MainDb/obj
+/BACK-END/MicroServices/FlightSearcherMicroService/MainDb/bin
+/BACK-END/MicroServices/FlightSearcherMicroService/MainMicroService/obj
+/BACK-END/MicroServices/FlightSearcherMicroService/MainMicroService/bin
+/BACK-END/MicroServices/FlightSearcherMicroService/MainMicroService/logs
+/BACK-END/MicroServices/FlightSearcherMicroService/MainModel/obj
+/BACK-END/MicroServices/FlightSearcherMicroService/MainModel/bin
+/BACK-END/MicroServices/FlightSearcherMicroService/MainShared/obj
+/BACK-END/MicroServices/FlightSearcherMicroService/MainShared/bin
+/BACK-END/MicroServices/FlightSearcherMicroService/MainBusiness/AppBusiness.csproj.user

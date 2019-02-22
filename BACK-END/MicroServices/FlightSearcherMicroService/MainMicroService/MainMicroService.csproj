@@ -1,0 +1,65 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <Configurations>Debug;Release;Allow anonymous</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETCOREAPP2_1;DISABLE_CAPTCHA_VALIDATION;USE_SQLITE_INMEMORY;</DefineConstants>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Allow anonymous|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;ALLOW_ANONYMOUS;NETCOREAPP2_1;</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="logs\**" />
+    <Content Remove="logs\**" />
+    <EmbeddedResource Remove="logs\**" />
+    <None Remove="logs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Interfaces\Services\IPusherService.cs" />
+    <Compile Remove="Interfaces\Services\ITemporaryValueCacheService.cs" />
+    <Compile Remove="Models\PusherSetting.cs" />
+    <Compile Remove="Models\RealTimeNotification.cs" />
+    <Compile Remove="Services\TemporaryValueCacheService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="GlobalExceptionHandler" Version="4.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.2.0" />
+    <PackageReference Include="Mustache" Version="1.0.1" />
+    <PackageReference Include="NSwag.AspNetCore" Version="12.0.5" />
+    <PackageReference Include="Serilog.AspNetCore" Version="2.1.1" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="3.0.1" />
+    <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.1.0-preview1-final" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\ServiceShared\ServiceShared.csproj" />
+    <ProjectReference Include="..\MainBusiness\MainBusiness.csproj" />
+    <ProjectReference Include="..\MainDb\MainDb.csproj" />
+    <ProjectReference Include="..\MainShared\MainShared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Cache\Email\SubmitPasswordRequest.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Authentications\ActionFilters\" />
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+</Project>

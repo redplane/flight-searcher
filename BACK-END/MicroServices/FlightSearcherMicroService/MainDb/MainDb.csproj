@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <Configurations>Debug;Release;Allow anonymous</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Models\Entities\Categorization.cs" />
+    <Compile Remove="Models\Entities\CommentNotification.cs" />
+    <Compile Remove="Models\Entities\CommentReport.cs" />
+    <Compile Remove="Models\Entities\Device.cs" />
+    <Compile Remove="Models\Entities\FcmGroup.cs" />
+    <Compile Remove="Models\Entities\PostNotification.cs" />
+    <Compile Remove="Models\Entities\SignalrConnectionGroup.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\ServiceShared\ServiceShared.csproj" />
+    <ProjectReference Include="..\MainModel\MainModel.csproj" />
+    <ProjectReference Include="..\MainShared\MainShared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+    <Folder Include="Interfaces\Repositories\" />
+    <Folder Include="Models\Contexts\" />
+    <Folder Include="Models\Entities\" />
+  </ItemGroup>
+
+</Project>
