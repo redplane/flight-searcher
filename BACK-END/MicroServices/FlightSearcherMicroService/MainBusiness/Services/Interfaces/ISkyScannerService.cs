@@ -15,6 +15,9 @@ namespace MainBusiness.Services.Interfaces
         /// <returns></returns>
         Task<string> CreateFlightSearchSessionAsync(CreateFlightSearchSessionViewModel model, CancellationToken cancellationToken = default(CancellationToken));
 
+        Task<ResultPricesViewModel> LoadFightInformationAsync(string session,
+            CancellationToken cancellationToken = default(CancellationToken));
+
         #endregion
     }
 }

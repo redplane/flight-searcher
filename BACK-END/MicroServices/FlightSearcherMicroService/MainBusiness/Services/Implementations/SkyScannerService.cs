@@ -103,6 +103,21 @@ namespace MainBusiness.Services.Implementations
             return sessionKey;
         }
 
+        public async Task<ResultPricesViewModel> LoadFightInformationAsync(string session, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var httpResponseMessage =
+                await _httpClient.GetAsync(new Uri($"apiservices/pricing/uk2/v1.0/{session}?pageIndex=0&pageSize=10&sortType=price&sortOrder=asc", UriKind.Relative), cancellationToken);
+
+            var httpResponseContent = await httpResponseMessage.Content.ReadAsStringAsync();
+
+            // Ensure status is valid.
+            httpResponseMessage.EnsureSuccessStatusCode();
+
+            var model = JsonConvert.DeserializeObject<ResultPricesViewModel>(httpResponseContent);
+
+            return model;
+        }
+
         #endregion
     }
 }
