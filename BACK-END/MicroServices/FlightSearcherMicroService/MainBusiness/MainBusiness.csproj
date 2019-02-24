@@ -19,8 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Domain\" />
-    <Folder Include="Interfaces\Domains\" />
+    <Folder Include="Domains\Interfaces\" />
+    <Folder Include="Domains\Implementations\" />
   </ItemGroup>
 
 </Project>
