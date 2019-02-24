@@ -1,0 +1,28 @@
+environment:
+ nodejs_version: "10.13.0"
+ 
+ NETLIFY_SITE_ID:
+  secure: /ocv/IlItxE1iIiSzbF5Z3Fr751wFCm5H8sBUaHPcAVDmwksYxeYwtCASuWnPQoh
+ 
+ NETLIFY_AUTH_TOKEN:
+  secure: Z0ebmrbMv4UoWG+jb/iqm1rNXYjkfdLtKpPn1SnYbJVMHpi7f4e9V7Jv4crlbHZ1Le4JKEQT/wOY8Q87rNm9WNmOJ/iiC/T+bOClY4ikGRY=
+    
+install:
+ # install netlify
+ - npm install netlify-cli@next -g
+ # install angular/@cli 
+ - npm install @angular/cli -g
+ 
+ # install modules
+ - npm install
+ 
+ # install typescript 3.1.6
+ - npm install typescript@">=3.1.1 <3.2"
+ 
+build_script: 
+ - ng build --prod
+
+after_build:
+ - set NETLIFY_SITE_ID=%NETLIFY_SITE_ID%
+ - set NETLIFY_AUTH_TOKEN=%NETLIFY_AUTH_TOKEN%
+ - netlify deploy --prod --dir=./dist
