@@ -12,7 +12,6 @@ const routes: Routes = [
     path: '',
     pathMatch: 'prefix',
     component: AuthorizeLayoutComponent,
-    canActivate: [IsAuthorizedGuard],
     resolve: {
       profile: ProfileResolve
     },

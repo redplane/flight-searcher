@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {AppComponent} from './app.component';
-import {RouterModule, Routes} from "@angular/router";
+import {RouterModule, Routes} from '@angular/router';
 
 //#region Properties
 
@@ -17,10 +17,6 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadChildren: 'modules/dashboard/dashboard.module#DashboardModule',
-      },
-      {
-        path: 'login',
-        loadChildren: 'modules/account/account.module#AccountModule'
       }
     ]
   }
@@ -33,9 +29,9 @@ export const routes: Routes = [
     AppComponent
   ],
   imports: [
-    RouterModule.forRoot(routes, {enableTracing: false})
+    RouterModule.forRoot(routes, {enableTracing: true})
   ],
-  exports:[
+  exports: [
     RouterModule
   ],
   bootstrap: [AppComponent]
