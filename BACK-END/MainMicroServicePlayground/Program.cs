@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -50,7 +51,13 @@ namespace MainMicroServicePlayground
             //Console.WriteLine(cheapestPrice.Price);
 
             //Get cheapest from arrange date
-            var priceArr = GetCheapestPriceForArrangeDate(1551369600000, 1551456000000, skyScannerService);
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
+            var priceArr = GetCheapestPriceForArrangeDate(1551369600000, 1553875200000, skyScannerService);
+
+            timer.Stop();
+            Console.WriteLine("Time elapsed: {0:hh\\:mm\\:ss}", timer.Elapsed);
+
             foreach (var priceInfo in priceArr)
             {
                 Console.WriteLine(priceInfo.Price);
@@ -65,7 +72,7 @@ namespace MainMicroServicePlayground
         /// </summary>
         /// <param name="skyScannerService"></param>
         /// <returns></returns>
-        public  static async Task<string> CreateFlightSearchSessionAsync(ISkyScannerService skyScannerService, DateTime dateFlight)
+        public static async Task<string> CreateFlightSearchSessionAsync(ISkyScannerService skyScannerService, DateTime dateFlight)
         {
             var model = new CreateFlightSearchSessionViewModel();
             model.OriginPlace = "KUL-sky";
@@ -75,56 +82,92 @@ namespace MainMicroServicePlayground
             return sessionKey;
         }
 
-        public  static async Task<ResultPricesViewModel> GetPricesAsync(ISkyScannerService skyScannerService, string sessionKey)
+        public static async Task<ResultPricesViewModel> GetPricesAsync(ISkyScannerService skyScannerService, string sessionKey)
         {
-           
+
             var cheapestPrice = await skyScannerService.LoadFightInformationAsync(sessionKey);
             return cheapestPrice;
         }
 
-        public  static List<PriceDetailViewModel> GetCheapestPriceForArrangeDate(double fromDateUnix, double toDateUnix, ISkyScannerService skyScannerService)
+        public static List<PriceDetailViewModel> GetCheapestPriceForArrangeDate(double fromDateUnix, double toDateUnix, ISkyScannerService skyScannerService)
         {
             IBaseTimeService timeService = new BaseTimeService();
             var pricesResult = new List<PriceDetailViewModel>();
             var fromdate = timeService.UnixToDateTimeUtc(fromDateUnix);
             var todate = timeService.UnixToDateTimeUtc(toDateUnix);
             var totalDay = (todate - fromdate).TotalDays;
+            var tasksSection = new List<Task<string>>();
 
             for (int i = 0; i <= totalDay; i++)
             {
                 var dateFlight = fromdate.AddDays(i);
-               
-                var pricedate= new PriceDetailViewModel();
+
+                var pricedate = new PriceDetailViewModel();
                 //Set date
                 pricedate.DateFight = timeService.DateTimeUtcToUnix(dateFlight);
 
                 //Get price
-                //Get session
-                var session =  CreateFlightSearchSessionAsync(skyScannerService, dateFlight.ToLocalTime()).Result;
+                tasksSection.Add(Task.Run(() => CreateFlightSearchSessionAsync(skyScannerService, dateFlight.ToLocalTime())));
 
-                //Get cheapest price
-                var allPrice = GetPricesAsync(skyScannerService, session).Result;
+                pricesResult.Add(pricedate);
 
-                var cheapestPrice = GetCheapestPrice(allPrice);
+            }
 
-                if (cheapestPrice != null)
+            var continuation = Task.WhenAll(tasksSection);
+            try
+            {
+                continuation.Wait();
+            }
+            catch (AggregateException)
+            { }
+
+            if (continuation.Status == TaskStatus.RanToCompletion)
+            {
+                var taskprice = new List<Task<ResultPricesViewModel>>();
+                foreach (var result in continuation.Result)
                 {
-                    pricedate.Price = cheapestPrice.Price;
+                    taskprice.Add(Task.Run(() => GetPricesAsync(skyScannerService, result)));
 
-                    pricesResult.Add(pricedate);
                 }
-                
+
+                var continuationPrice = Task.WhenAll(taskprice);
+                try
+                {
+                    continuationPrice.Wait();
+                }
+                catch (AggregateException)
+                { }
+
+                if (continuationPrice.Status == TaskStatus.RanToCompletion)
+                {
+                    int i = 0;
+                    foreach (var result in continuationPrice.Result)
+                    {
+                        var cheapestPrice = GetCheapestPrice(result);
+                        if (cheapestPrice != null)
+                        {
+                            pricesResult[i].Price = cheapestPrice.Price;
+                        }
+                        i++;
+                    }
+                }
+            }
+            // Display information on faulted tasks.
+            else
+            {
+                foreach (var t in tasksSection)
+                    Console.WriteLine("Task {0}: {1}", t.Id, t.Status);
             }
 
             return pricesResult;
         }
 
-       
+
 
         public static PricingOption GetCheapestPrice(ResultPricesViewModel allPirces)
         {
             var pricingOptions = new List<PricingOption>();
-            
+
             var itineraries = allPirces.Itineraries;
             foreach (var itinerary in itineraries)
             {
@@ -134,7 +177,7 @@ namespace MainMicroServicePlayground
             }
 
             var cheapestPrice = pricingOptions.OrderBy(c => c.Price).FirstOrDefault();
-            
+
             return cheapestPrice;
 
         }
