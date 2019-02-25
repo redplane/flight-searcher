@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using MainBusiness.Interfaces;
 using MainMicroService.Authentications.Requirements;
 using MainMicroService.Interfaces.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -20,11 +19,10 @@ namespace MainMicroService.Authentications.Handlers
         /// <summary>
         ///     Initiate requirement handler with injectors.
         /// </summary>
-        public SolidAccountRequirementHandler(
-            IAppProfileService profileService, IAppProfileCacheService appProfileCacheService,
+        public SolidAccountRequirementHandler( IAppProfileCacheService appProfileCacheService,
             IHttpContextAccessor httpContextAccessor)
         {
-            _profileService = profileService;
+          
             _httpContextAccessor = httpContextAccessor;
             _appProfileCacheService = appProfileCacheService;
         }
@@ -71,7 +69,7 @@ namespace MainMicroService.Authentications.Handlers
                 // Method or controller authorization can be by passed.
                 if (authorizationFilterContext.Filters.Any(x => x is ByPassAuthorizationAttribute))
                 {
-                    _profileService.BypassAuthorizationFilter(context, requirement);
+                   
                     return;
                 }
 
@@ -82,11 +80,6 @@ namespace MainMicroService.Authentications.Handlers
         #endregion
 
         #region Properties
-
-        /// <summary>
-        ///     Provides functions to access service which handles identity businesses.
-        /// </summary>
-        private readonly IAppProfileService _profileService;
 
         private readonly IAppProfileCacheService _appProfileCacheService;
 

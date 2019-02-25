@@ -21,6 +21,7 @@
         public SkyScannerFlightSearchConfiguration()
         {
             BaseUrl = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com";
+            ApiKey = "a608d68391msh7d49e0b15616936p1f542cjsnce8e1906eef5";
         }
 
         #endregion
