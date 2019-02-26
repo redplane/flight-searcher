@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MainBusiness.Services.Interfaces;
+using MainMicroService.ViewModels;
 using MainModel.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,98 +17,109 @@ namespace MainMicroService.Controllers
     {
         #region Properties
 
+        /// <summary>
+        /// Service for searching flights.
+        /// </summary>
         private readonly ISkyScannerService _skyScannerService;
 
+        /// <summary>
+        /// Service for handling system time.
+        /// </summary>
         private readonly IBaseTimeService _baseTimeService;
+
         #endregion
         #region Constructor
 
         public FlightController(ISkyScannerService skyScannerService, IBaseTimeService baseTimeService)
         {
             _skyScannerService = skyScannerService;
-
             _baseTimeService = baseTimeService;
         }
 
         #endregion
 
         #region Methods
-        
-        [HttpGet("")]
-        public async Task<IActionResult> GetCheapestPriceArrangeDate(double fromDateUnix, double toDateUnix)
+
+        [HttpPost("search")]
+        public async Task<IActionResult> FindCheapestFlightsAsync([FromBody] LoadCheapestFlightViewModel model)
         {
-            var pricesResult = new List<PriceDetailViewModel>();
-            var fromdate = _baseTimeService.UnixToDateTimeUtc(fromDateUnix);
-            var todate = _baseTimeService.UnixToDateTimeUtc(toDateUnix);
-            var totalDay = (todate - fromdate).TotalDays;
-            var tasksSection = new List<Task<string>>();
-
-            for (int i = 0; i <= totalDay; i++)
+            if (model == null)
             {
-                var dateFlight = fromdate.AddDays(i);
+                model = new LoadCheapestFlightViewModel();
+                TryValidateModel(model);
+            }
 
-                var pricedate = new PriceDetailViewModel();
-                //Set date
-                pricedate.DateFight = _baseTimeService.DateTimeUtcToUnix(dateFlight);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // Get original local time.
+            var originalLocalTime = _baseTimeService.UnixToDateTimeUtc(model.OriginalFlightSearchTime);
+
+            // List of tasks that used for loading cheapeast flight sessions.
+            var loadCheapestFlightPricesSessionsTasks = new List<Task<string>>();
+
+            #region Load flight sessions
+
+            for (var i = 0; i < 30; i++)
+            {
+                var dateFlight = originalLocalTime.AddDays(i);
+
+                var loadCheapestFlightConditions = new CreateFlightSearchSessionViewModel();
+                loadCheapestFlightConditions.OriginPlace = model.Departure;
+                loadCheapestFlightConditions.DestinationPlace = model.Arrival;
+                loadCheapestFlightConditions.OutboundDate = dateFlight.ToString("yyyy-MM-dd");
 
                 //Get price
-                tasksSection.Add(Task.Run(() => CreateFlightSearchSessionAsync( dateFlight.ToLocalTime())));
-
-                pricesResult.Add(pricedate);
-
+                var loadCheapestFlightPricesSessionsTask = _skyScannerService.CreateFlightSearchSessionAsync(loadCheapestFlightConditions);
+                loadCheapestFlightPricesSessionsTasks.Add(loadCheapestFlightPricesSessionsTask);
             }
 
-            var sessions = await Task.WhenAll(tasksSection);
+            // Wait for all sessions to be retrieved.
+            var flightSearchSessions = await Task.WhenAll(loadCheapestFlightPricesSessionsTasks);
+            flightSearchSessions =
+                flightSearchSessions.Where(x => !string.IsNullOrEmpty(x)).ToArray();
 
-            var taskprice = new List<Task<ResultPricesViewModel>>();
-            foreach (var result in sessions)
+            #endregion
+
+            #region Load cheapest flights
+
+            var loadCheapestFlightTasks = new List<Task<ResultPricesViewModel>>();
+            foreach (var flightSearchSession in flightSearchSessions)
             {
-                taskprice.Add(Task.Run(() => _skyScannerService.LoadFightInformationAsync(result)));
-
+                var loadFlightInformationTask = _skyScannerService.LoadFightInformationAsync(flightSearchSession);
+                loadCheapestFlightTasks.Add(loadFlightInformationTask);
             }
 
-            var resultPricesViewModels = await Task.WhenAll(taskprice);
+            var loadCheapestFlightResults = await Task.WhenAll(loadCheapestFlightTasks);
 
-            int k = 0;
-            foreach (var result in resultPricesViewModels)
+            #endregion
+
+            // Initialize list of response.
+            var cheapestFlights = new List<CheapestFlightViewModel>();
+            
+            foreach (var loadCheapestFlightResult in loadCheapestFlightResults)
             {
-                var cheapestPrice = GetCheapestPrice(result);
-                if (cheapestPrice != null)
-                {
-                    pricesResult[k].Price = cheapestPrice.Price;
-                }
-                k++;
-            }
-            return Ok(pricesResult);
-        }
+                var itineraries = loadCheapestFlightResult.Itineraries;
+                if (itineraries == null || itineraries.Count < 1)
+                    continue;
 
-        public  async Task<string> CreateFlightSearchSessionAsync( DateTime dateFlight)
-        {
-            var model = new CreateFlightSearchSessionViewModel();
-            model.OriginPlace = "KUL-sky";
-            model.DestinationPlace = "SIN-sky";
-            model.OutboundDate = dateFlight.ToString("yyyy-MM-dd");
-            var sessionKey = await _skyScannerService.CreateFlightSearchSessionAsync(model);
-            return sessionKey;
-        }
+                var query = loadCheapestFlightResult.Query;
+                if (query == null)
+                    continue;
 
-        public  PricingOption GetCheapestPrice(ResultPricesViewModel allPirces)
-        {
-            var pricingOptions = new List<PricingOption>();
+                var cheapestPrice = new CheapestFlightViewModel();
+                cheapestPrice.Price = itineraries.Where(x => x.PricingOptions != null).SelectMany(x => x.PricingOptions)
+                    .Select(x => x.Price).FirstOrDefault();
+                cheapestPrice.OutboundTime =
+                    _baseTimeService.DateTimeUtcToUnix(query.OutboundDate.DateTime.ToUniversalTime());
 
-            var itineraries = allPirces.Itineraries;
-            foreach (var itinerary in itineraries)
-            {
-                var cheapestPriceOption = itinerary.PricingOptions.FirstOrDefault();
-                pricingOptions.Add(cheapestPriceOption);
-
+                cheapestFlights.Add(cheapestPrice);
             }
 
-            var cheapestPrice = pricingOptions.OrderBy(c => c.Price).FirstOrDefault();
-
-            return cheapestPrice;
-
+            return Ok(cheapestFlights);
         }
+        
+        
         #endregion
     }
 }

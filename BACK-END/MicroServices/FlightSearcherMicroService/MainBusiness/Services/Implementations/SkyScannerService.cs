@@ -48,7 +48,7 @@ namespace MainBusiness.Services.Implementations
             _httpClient.BaseAddress = new Uri(options.BaseUrl, UriKind.Absolute);
             _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-RapidAPI-Key", options.ApiKey);
         }
-
+        
         #endregion
 
         #region Methods

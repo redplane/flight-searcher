@@ -9,7 +9,7 @@ export class LoadCheapestFlightPriceViewModel {
   public arrival: string;
 
   // Departure time
-  public departureTime: number;
+  public originalFlightSearchTime: number;
 
   //#endregion
 }

@@ -1,6 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, Inject, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {ProfileViewModel} from '../../../view-models/profile.view-model';
+import {IMessageBusService} from '../../../interfaces/services/message-bus-service.interface';
+import {MessageBusChannelConstant} from '../../../constants/message-bus-channel.constant';
+import {MessageBusEventConstant} from '../../../constants/message-bus-event.constant';
 
 @Component({
   selector: 'authorize-layout',
@@ -22,7 +25,10 @@ export class AuthorizeLayoutComponent implements OnInit {
   /*
   * Initiate component with injectors.
   * */
-  public constructor(public activatedRoute: ActivatedRoute) {
+  public constructor(public activatedRoute: ActivatedRoute,
+                     @Inject('IMessageBusService') public messageBusService: IMessageBusService,
+                     public changeDetectorRef: ChangeDetectorRef) {
+
   }
 
   //#endregion
@@ -33,7 +39,12 @@ export class AuthorizeLayoutComponent implements OnInit {
   * Event which is called when component has been initiated.
   * */
   public ngOnInit(): void {
-
+    this.messageBusService
+      .hookMessageChannel(MessageBusChannelConstant.uiChannel, MessageBusEventConstant.toggleLoader)
+      .subscribe((status) => {
+        this.bIsLoaderShown = status;
+        this.changeDetectorRef.detectChanges();
+      });
   }
 
   //#endregion

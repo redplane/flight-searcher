@@ -6,6 +6,7 @@
   "TITLE_ARRIVAL": "Arrival",
   "TITLE_DEPARTURE_DATE": "Departure Date",
   "TITLE_SEARCH": "Search",
+  "TITLE_CHEAPEST_FLIGHTS_FOR_YOU": "Cheapest Flights For You",
   "MSG_FLIGHT_SEARCHER_SOLOGAN": "Go around the world with the cheapest price, as always !",
   "MSG_DEPARTURE_TIME_REQUIRED": "Departure time is required.",
   "MSG_DEPARTURE_FLIGHT_ROUTE_REQUIRED": "Departure flight is required.",

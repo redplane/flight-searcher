@@ -1,5 +1,10 @@
 <div class="container">
 
+  <!--Flight search result-->
+  <div class="section-title">
+    <h2>{{'TITLE_CHEAPEST_FLIGHTS_FOR_YOU' | translate}}</h2>
+  </div>
+
   <div class="row">
     <div class="col-12 text-center">
       <h3>{{ viewDate | calendarDate: view + 'ViewTitle':locale }}</h3>
@@ -9,20 +14,21 @@
   <div class="row">
     <div class="col-12 text-center">
       <div class="btn-group">
-        <div class="btn btn-primary"
-             mwlCalendarPreviousView
-             [view]="'month'">
+        <button class="btn btn-primary"
+                mwlCalendarPreviousView
+                [(viewDate)]="viewDate"
+                [view]="'month'">
           &lt;
-        </div>
+        </button>
         <div class="btn btn-primary"
              mwlCalendarNextView
+             [(viewDate)]="viewDate"
              [view]="'month'">
           &gt;
         </div>
       </div>
     </div>
   </div>
-
 
   <div class="row">
     <div class="col-12">
@@ -41,8 +47,8 @@
   </div>
   <div class="mb-15px">
     <span class="badge badge-light flight-price"
-          *ngIf="!day.isPast">
-      <span class="fa fa-money"></span> <span class="flight-price-amount">{{day.events.length}}</span>
+          *ngIf="!day.isPast && hasFlight(day.date)">
+      <span class="fa fa-money"></span> <span class="flight-price-amount"> ${{getFlight(day.date)?.price}}</span>
     </span>
   </div>
 </ng-template>

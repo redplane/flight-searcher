@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using AutoMapper;
 using ClientShared.Enumerations;
 using MainBusiness.Services;
@@ -91,21 +92,7 @@ namespace MainMicroService
 
             // Load jwt configuration from setting files.
             services.Configure<AppJwtModel>(Configuration.GetSection(MainConfigKeyConstant.AppJwt));
-           
-            //services.Configure<FcmOption>(Configuration.GetSection(MainConfigKeyConstant.AppFirebase));
-            //services.Configure<PusherSetting>(Configuration.GetSection(nameof(PusherSetting)));
-            services.Configure<CaptchaSetting>(Configuration.GetSection(nameof(CaptchaSetting)));
-
-            // Build a service provider.
-            //var fcmOption = servicesProvider.GetService<IOptions<FcmOption>>().Value;
-
-            //#if DEBUG
-            //            var dbContext = servicesProvider.GetService<DbContext>();
-            //            var sqlReader = dbContext.Database.ExecuteSqlQuery("select sqlite_version();");
-            //            sqlReader.Read();
-            //            var value = sqlReader.DbDataReader[0];
-            //#endif
-
+            
             // Cors configuration.
             var corsBuilder = new CorsPolicyBuilder();
             corsBuilder.AllowAnyHeader();
@@ -120,7 +107,7 @@ namespace MainMicroService
 
             // Register jwt service.
             JsonWebTokenConfigs.Register(Configuration, services);
-            
+
             // Add automaper configuration.
             services.AddAutoMapper(options => options.AddProfile(typeof(MappingProfile)));
 
@@ -128,25 +115,12 @@ namespace MainMicroService
 
             // Add swagger.
             services.AddSwaggerDocument();
-
-            services.AddAuthorization(x => x.AddPolicy(PolicyConstant.IsAdminPolicy,
-                builder => { builder.AddRequirements(new RoleRequirement(new[] {UserRole.Admin})); }));
-
+            
             #region Mvc builder
 
             // Construct mvc options.
             services.AddMvc(mvcOptions =>
                 {
-                    ////only allow authenticated users
-                    var policy = new AuthorizationPolicyBuilder()
-                        .RequireAuthenticatedUser()
-                        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-#if !ALLOW_ANONYMOUS
-                        .AddRequirements(new SolidAccountRequirement())
-#endif
-                        .Build();
-
-                    mvcOptions.Filters.Add(new AuthorizeFilter(policy));
                 })
                 .AddJsonOptions(options =>
                 {
@@ -205,7 +179,21 @@ namespace MainMicroService
             services.Configure<RouteOptions>(options => { options.LowercaseUrls = true; });
             services.AddScoped<IBaseTimeService, BaseTimeService>();
 
-            services.AddScoped<ISkyScannerService, SkyScannerService>();
+            var skyScannerFlightSearchOptions = (SkyScannerFlightSearchConfiguration)Configuration.GetSection("skyScannerFlightSearchOption")
+                .Get(typeof(SkyScannerFlightSearchConfiguration));
+
+            if (skyScannerFlightSearchOptions != null)
+                services.AddSingleton(skyScannerFlightSearchOptions);
+            else
+                services.AddSingleton<SkyScannerFlightSearchConfiguration>();
+
+            services.AddHttpClient<ISkyScannerService, SkyScannerService>();
+            services.AddScoped<ISkyScannerService, SkyScannerService>(provider =>
+            {
+                var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
+                var skyScannerOptions = provider.GetService<SkyScannerFlightSearchConfiguration>();
+                return new SkyScannerService(httpClientFactory.CreateClient(), skyScannerOptions);
+            });
             //var sp = services.BuildServiceProvider();
             //var fooService = sp.GetService<ISkyScannerService>();
             // Add Swagger API document.

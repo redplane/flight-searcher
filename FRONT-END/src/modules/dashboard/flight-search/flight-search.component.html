@@ -59,17 +59,17 @@
                 <div class="form-group">
                   <input class="form-control"
                          #departureTimeDatePicker="bsDatepicker"
-                         #departureTime="ngModel"
-                         [(ngModel)]="loadCheapestFlightPriceConditions.departureTime"
+                         #departureTimeControl="ngModel"
+                         [(ngModel)]="departureTime"
                          name="departureTime"
                          bsDatepicker
+                         [minDate]="currentTime"
                          [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
 
-                         [required]="true"
-                         [greater-than-current-time]="true">
+                         [required]="true">
                   <ul class="validation-summary"
-                      *ngIf="(flightSearchForm.submitted || departureTime.dirty) && flightSearchForm.invalid">
-                    <li *ngIf="departureTime.errors.required">{{'MSG_DEPARTURE_TIME_REQUIRED' | translate}}</li>
+                      *ngIf="(flightSearchForm.submitted || departureTimeControl.dirty) && flightSearchForm.invalid">
+                    <li *ngIf="departureTimeControl.errors.required">{{'MSG_DEPARTURE_TIME_REQUIRED' | translate}}</li>
                   </ul>
                 </div>
               </div>

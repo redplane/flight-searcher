@@ -19,12 +19,11 @@ namespace MainMicroService.Authentications.Handlers
         /// <summary>
         ///     Initiate requirement handler with injectors.
         /// </summary>
-        public SolidAccountRequirementHandler( IAppProfileCacheService appProfileCacheService,
+        public SolidAccountRequirementHandler(
             IHttpContextAccessor httpContextAccessor)
         {
           
             _httpContextAccessor = httpContextAccessor;
-            _appProfileCacheService = appProfileCacheService;
         }
 
         #endregion
@@ -46,43 +45,12 @@ namespace MainMicroService.Authentications.Handlers
             // Get user access token.
             var requestAccessToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
 
-            try
-            {
-                // Get access token from cache.
-                //var account = _profileCacheService.Read(iId);
-                var accessToken = await _appProfileCacheService.FindAccessTokenByCodeAsync(requestAccessToken);
-
-                if (accessToken == null)
-                    throw new Exception("Cannot find user information from cache service");
-                
-                // TODO: Validate user role.
-                context.Succeed(requirement);
-            }
-            catch
-            {
-                if (authorizationFilterContext == null)
-                {
-                    context.Fail();
-                    return;
-                }
-
-                // Method or controller authorization can be by passed.
-                if (authorizationFilterContext.Filters.Any(x => x is ByPassAuthorizationAttribute))
-                {
-                   
-                    return;
-                }
-
-                context.Fail();
-            }
+            context.Succeed(requirement);
         }
 
         #endregion
 
         #region Properties
-
-        private readonly IAppProfileCacheService _appProfileCacheService;
-
         /// <summary>
         ///     Context accessor.
         /// </summary>

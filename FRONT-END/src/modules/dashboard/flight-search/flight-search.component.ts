@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, EventEmitter, Output} from '@angular/core';
 import {FlightRouteModel} from '../../../models/flight-route.model';
 import {LoadCheapestFlightPriceViewModel} from '../../../view-models/load-cheapest-flight-price.view-model';
 import {FormGroup, NgForm} from '@angular/forms';
@@ -13,16 +13,16 @@ export class FlightSearchComponent {
   //#region Properties
 
   // Time when user wants to depart.
-  private _departureTime: Date | null;
+  private _originalFlightSearchTime: Date | null;
 
   // Get time when user wants to depart.
   public get departureTime(): Date | null {
-    return this._departureTime;
+    return this._originalFlightSearchTime;
   }
 
   // Set time when user wants to depart.
   public set departureTime(time: Date) {
-    this._departureTime = time;
+    this._originalFlightSearchTime = time;
   }
 
   // Available departure flight routes.
@@ -65,6 +65,17 @@ export class FlightSearchComponent {
     }
   }
 
+  // Current system time.
+  public readonly currentTime: Date = new Date();
+
+  //#endregion
+
+  //#region Event emitters
+
+  // Event that will be raised when flight search is being done.
+  @Output('search')
+  public readonly ngOnFlightSearchEvent: EventEmitter<LoadCheapestFlightPriceViewModel>;
+
   //#endregion
 
   //#region Constructor
@@ -79,6 +90,9 @@ export class FlightSearchComponent {
 
     // Initialize search condition.
     this.loadCheapestFlightPriceConditions = new LoadCheapestFlightPriceViewModel();
+
+    // Event emitters initialization.
+    this.ngOnFlightSearchEvent = new EventEmitter<LoadCheapestFlightPriceViewModel>();
   }
 
   //#endregion
@@ -95,6 +109,15 @@ export class FlightSearchComponent {
     if (!flightSearchForm.valid) {
       return;
     }
+
+    const model = {
+      ...this.loadCheapestFlightPriceConditions
+    };
+
+    model.originalFlightSearchTime = this._originalFlightSearchTime.getTime();
+
+    this.ngOnFlightSearchEvent
+      .emit(model);
   }
 
   /**
