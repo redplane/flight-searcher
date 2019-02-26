@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using AutoMapper;
 using ClientShared.Enumerations;
-using MainBusiness.Interfaces;
-using MainBusiness.Interfaces.Services;
 using MainBusiness.Services;
+using MainBusiness.Services.Implementations;
+using MainBusiness.Services.Interfaces;
 using MainDb.Interfaces;
 using MainDb.Services;
 using MainMicroService.Authentications.Handlers;
@@ -91,7 +91,7 @@ namespace MainMicroService
 
             // Load jwt configuration from setting files.
             services.Configure<AppJwtModel>(Configuration.GetSection(MainConfigKeyConstant.AppJwt));
-            services.Configure<ApplicationSetting>(Configuration.GetSection(nameof(ApplicationSetting)));
+           
             //services.Configure<FcmOption>(Configuration.GetSection(MainConfigKeyConstant.AppFirebase));
             //services.Configure<PusherSetting>(Configuration.GetSection(nameof(PusherSetting)));
             services.Configure<CaptchaSetting>(Configuration.GetSection(nameof(CaptchaSetting)));
@@ -203,7 +203,11 @@ namespace MainMicroService
         private void AddServices(IServiceCollection services)
         {
             services.Configure<RouteOptions>(options => { options.LowercaseUrls = true; });
+            services.AddScoped<IBaseTimeService, BaseTimeService>();
 
+            services.AddScoped<ISkyScannerService, SkyScannerService>();
+            //var sp = services.BuildServiceProvider();
+            //var fooService = sp.GetService<ISkyScannerService>();
             // Add Swagger API document.
             services.AddSwaggerDocument(settings =>
             {

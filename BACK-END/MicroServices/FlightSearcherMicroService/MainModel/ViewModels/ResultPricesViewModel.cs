@@ -138,7 +138,7 @@ namespace MainModel.ViewModels
         public Directionality Directionality { get; set; }
     }
 
-    public enum Status { UpdatesComplete };
+    public enum Status { UpdatesComplete, UpdatesPending };
 
     public enum AgentType { Airline, TravelAgent };
 
