@@ -1,6 +1,13 @@
 {
-  "TITLE_ITEM_01": "Item 01",
-  "TITLE_ITEM_02": "Item 02",
-  "TITLE_STUDENT_PROFILE": "Student profile",
-  "TITLE_STUDENT_DASHBOARD": "Student dashboard"
+  "TITLE_FLIGHT_SEARCHER": "Flight Searcher",
+  "TITLE_START_SEARCHING": "Start searching",
+  "TITLE_SEARCH_FOR_YOUR_FLIGHT": "Search For Your Flight",
+  "TITLE_DEPARTURE": "Departure",
+  "TITLE_ARRIVAL": "Arrival",
+  "TITLE_DEPARTURE_DATE": "Departure Date",
+  "TITLE_SEARCH": "Search",
+  "MSG_FLIGHT_SEARCHER_SOLOGAN": "Go around the world with the cheapest price, as always !",
+  "MSG_DEPARTURE_TIME_REQUIRED": "Departure time is required.",
+  "MSG_DEPARTURE_FLIGHT_ROUTE_REQUIRED": "Departure flight is required.",
+  "MSG_ARRIVAL_FLIGHT_ROUTE_REQUIRED": "Arrival flight is required."
 }

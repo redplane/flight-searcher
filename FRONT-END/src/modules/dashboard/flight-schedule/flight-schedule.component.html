@@ -1,0 +1,48 @@
+<div class="container">
+
+  <div class="row">
+    <div class="col-12 text-center">
+      <h3>{{ viewDate | calendarDate: view + 'ViewTitle':locale }}</h3>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 text-center">
+      <div class="btn-group">
+        <div class="btn btn-primary"
+             mwlCalendarPreviousView
+             [view]="'month'">
+          &lt;
+        </div>
+        <div class="btn btn-primary"
+             mwlCalendarNextView
+             [view]="'month'">
+          &gt;
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="col-12">
+      <mwl-calendar-month-view
+        [viewDate]="viewDate"
+        [events]="events"
+        [cellTemplate]="customCellTemplate">
+      </mwl-calendar-month-view>
+    </div>
+  </div>
+</div>
+
+<ng-template #customCellTemplate let-day="day" let-locale="locale">
+  <div class="cal-cell-top">
+    <span class="cal-day-number">{{ day.date | calendarDate:'monthViewDayNumber':locale }}</span>
+  </div>
+  <div class="mb-15px">
+    <span class="badge badge-light flight-price"
+          *ngIf="!day.isPast">
+      <span class="fa fa-money"></span> <span class="flight-price-amount">{{day.events.length}}</span>
+    </span>
+  </div>
+</ng-template>

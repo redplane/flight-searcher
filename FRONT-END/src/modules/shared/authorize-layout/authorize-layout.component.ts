@@ -1,20 +1,19 @@
-import {Component, OnInit} from "@angular/core";
-import {ActivatedRoute} from "@angular/router";
-import {ProfileViewModel} from "../../../view-models/profile.view-model";
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {ProfileViewModel} from '../../../view-models/profile.view-model';
 
 @Component({
   selector: 'authorize-layout',
-  templateUrl: 'authorize-layout.component.html'
+  templateUrl: 'authorize-layout.component.html',
+  styleUrls: ['authorize-layout.component.scss']
 })
 
-export class AuthorizeLayoutComponent implements OnInit{
+export class AuthorizeLayoutComponent implements OnInit {
 
   //#region Properties
 
-  /*
-  * Profile information.
-  * */
-  public profile: ProfileViewModel;
+  // Whether loader is shown or not.
+  public bIsLoaderShown = false;
 
   //#endregion
 
@@ -23,7 +22,7 @@ export class AuthorizeLayoutComponent implements OnInit{
   /*
   * Initiate component with injectors.
   * */
-  public constructor(public activatedRoute: ActivatedRoute){
+  public constructor(public activatedRoute: ActivatedRoute) {
   }
 
   //#endregion
@@ -34,9 +33,7 @@ export class AuthorizeLayoutComponent implements OnInit{
   * Event which is called when component has been initiated.
   * */
   public ngOnInit(): void {
-    this.activatedRoute.data.subscribe((x: any) => {
-      this.profile = <ProfileViewModel> x.profile;
-    });
+
   }
 
   //#endregion

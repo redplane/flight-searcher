@@ -1,19 +1,15 @@
-
 import {mergeMap, map, filter} from 'rxjs/operators';
 import {Component, OnInit, Renderer2} from '@angular/core';
-import {ActivatedRoute, NavigationEnd, Router} from "@angular/router";
-
-
+import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 
 
 @Component({
   selector: 'body',
-  templateUrl: 'app.component.html'
+  templateUrl: 'app.component.html',
+  styleUrls: ['app.component.scss']
 })
 
 export class AppComponent implements OnInit {
-
-  title = 'app';
 
   //#region Constructor
 
@@ -23,7 +19,7 @@ export class AppComponent implements OnInit {
 
   }
 
-  //#endrgion
+  //#endregion
 
   //#region Methods
 
@@ -37,7 +33,9 @@ export class AppComponent implements OnInit {
       filter((event) => event instanceof NavigationEnd),
       map(() => this.activatedRoute),
       map((route) => {
-        while (route.firstChild) route = route.firstChild;
+        while (route.firstChild) {
+          route = route.firstChild;
+        }
         return route;
       }),
       filter((route) => route.outlet === 'primary'),
@@ -45,10 +43,11 @@ export class AppComponent implements OnInit {
       .subscribe((event) => {
         let classes = event.appCssClasses;
 
-        if (!classes || classes.length < 1)
+        if (!classes || classes.length < 1) {
           return;
+        }
 
-        for (let szClass of classes){
+        for (let szClass of classes) {
           this.renderer.addClass(document.body, szClass);
         }
 

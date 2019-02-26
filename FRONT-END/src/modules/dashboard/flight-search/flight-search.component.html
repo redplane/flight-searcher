@@ -1,0 +1,91 @@
+<ng-form #flightSearchForm="ngForm">
+  <div class="container">
+    <div class="section-title">
+      <h2>{{'TITLE_SEARCH_FOR_YOUR_FLIGHT' | translate}}</h2>
+    </div>
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <!--Departure | arrival time-->
+            <div class="row">
+              <div class="col-lg-6">
+                <label>{{'TITLE_DEPARTURE' | translate}}</label>
+                <span class="text-danger">*</span>
+                <div class="form-group">
+                  <select class="form-control"
+                          name="departureFlightRoute"
+                          #departureFlightRouteControl="ngModel"
+                          [(ngModel)]="departureFlightRoute"
+                          [required]="true">
+                    <option *ngFor="let item of availableDepartureFlightRoutes"
+                            [value]="item.value">{{item.name}}</option>
+                  </select>
+
+                  <ul class="validation-summary"
+                      *ngIf="(flightSearchForm.submitted || departureFlightRouteControl.dirty) && departureFlightRouteControl.invalid">
+                    <li *ngIf="departureFlightRouteControl.errors.required">{{'MSG_DEPARTURE_FLIGHT_ROUTE_REQUIRED' | translate}}</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <label>{{'TITLE_ARRIVAL' | translate}}</label>
+                <span class="text-danger">*</span>
+                <div class="form-group">
+                  <select class="form-control"
+                          name="arrivalFlightRoute"
+                          greater-than-current-time="true"
+                          [(ngModel)]="arrivalFlightRoute"
+                          #arrivalFlightRouteControl="ngModel"
+
+                          [required]="true">
+                    <option *ngFor="let item of availableArrivalFlightRoutes"
+                            [value]="item.value">{{item.name}}</option>
+                  </select>
+
+                  <ul class="validation-summary"
+                      *ngIf="(flightSearchForm.submitted || arrivalFlightRouteControl.dirty) && arrivalFlightRouteControl.invalid">
+                    <li *ngIf="arrivalFlightRouteControl.errors.required">{{'MSG_ARRIVAL_FLIGHT_ROUTE_REQUIRED' | translate}}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!--Departure date-->
+            <div class="row">
+              <div class="col-lg-6">
+                <label>{{'TITLE_DEPARTURE_DATE' | translate}}</label>
+                <span class="text-danger">*</span>
+                <div class="form-group">
+                  <input class="form-control"
+                         #departureTimeDatePicker="bsDatepicker"
+                         #departureTime="ngModel"
+                         [(ngModel)]="loadCheapestFlightPriceConditions.departureTime"
+                         name="departureTime"
+                         bsDatepicker
+                         [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }"
+
+                         [required]="true"
+                         [greater-than-current-time]="true">
+                  <ul class="validation-summary"
+                      *ngIf="(flightSearchForm.submitted || departureTime.dirty) && flightSearchForm.invalid">
+                    <li *ngIf="departureTime.errors.required">{{'MSG_DEPARTURE_TIME_REQUIRED' | translate}}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="text-center">
+              <button class="btn btn-primary"
+                      (click)="ngOnFlightSearchClicked(flightSearchForm)">
+                <span>{{'TITLE_SEARCH' | translate}}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-form>
+

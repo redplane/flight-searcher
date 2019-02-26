@@ -1,0 +1,12 @@
+::ng-deep {
+  .flight-price {
+    margin-left: 20px;
+    margin-bottom: 20px;
+    font-size: 15px;
+
+    .flight-price-amount {
+      color: red;
+      margin-left: 10px;
+    }
+  }
+}
